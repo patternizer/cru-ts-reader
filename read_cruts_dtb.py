@@ -4,7 +4,7 @@
 #------------------------------------------------------------------------------
 # CRU TS v4.04 .dtb reader
 #------------------------------------------------------------------------------
-# Version 0.1
+# Version 0.2
 # 5 August, 2021
 # Michael Taylor
 # https://patternizer.github.io
@@ -27,8 +27,12 @@ warnings.filterwarnings("ignore", category=UserWarning)
 # SETTINGS: 
 #------------------------------------------------------------------------------
 
-filename_txt = 'DATA/tmp.2103041709.clean.dtb'
-    
+#filename_txt = 'DATA/tmp.2103041709.clean.dtb'
+#filename_txt = 'DATA/tmn.2004011744.clean.dtb'
+#filename_txt = 'DATA/tmp.2004011744.clean.dtb'
+#filename_txt = 'DATA/tmx.2004011744.clean.dtb'
+filename_txt = 'DATA/pre.2004011744.clean.dtb'
+         
 #------------------------------------------------------------------------------
 # METHODS
 #------------------------------------------------------------------------------
@@ -58,26 +62,30 @@ def load_dataframe(filename_txt):
                     
         for line in f:   
 
-            if len(line.strip().split())>1: # extract station header and data
+            if (len(line.strip().split())>1): # extract station header and data
 
-                if len(line.strip().split()[0]) > 4:                
-                    if line.strip().split()[0][4].isdigit():
-
-                        print(line)
-                        words = line.strip().split()
-                        code = words[0]
-                        lat = words[1]
-                        lon = words[2]
-                        elevation = words[3]
-                        name = words[4:-3]    
-                        country = words[-3]
-                        firstyear = words[-2]
-                        lastyear = words[-1]                                                
+                if any(char.isalpha() for char in line) == True:
+                
+                    print(line)
+                                                    
+                    words = line.strip().split()
+                    code = words[0]
+                    lat = words[1]
+                    lon = words[2]
+                    elevation = words[3]
+                    name = words[4:-3]    
+                    country = words[-3]
+                    firstyear = words[-2]
+                    lastyear = words[-1]                                                
+                    
                 else:           
+
                     yearlist.append(line[0:4])                                
                     obs = []
                     for i in range(12):
+
                         obs.append(line[4+5*i:4+5*(i+1)])    
+
                     monthlist.append(np.array(obs))                                 
                     stationcode.append(code)
                     stationlat.append(lat)
@@ -114,29 +122,9 @@ def load_dataframe(filename_txt):
     df['stationname'] = [ str(df['stationname'][i]).strip() for i in range(len(df)) ] 
     df['stationcountry'] = [ str(df['stationcountry'][i]).strip() for i in range(len(df)) ] 
 
-    # convert numeric variables from list of str to int (important due to fillValue)   
-    
-    for j in range(1,13):
+    # replace fill values with np.nan
 
-        df[df.columns[j]] = df[df.columns[j]].astype('int')
-
-    df['stationlat'] = df['stationlat'].astype('int')
-    df['stationlon'] = df['stationlon'].astype('int')
-    df['stationelevation'] = df['stationelevation'].astype('int')    
-    df['stationfirstyear'] = df['stationfirstyear'].astype('int')    
-    df['stationlastyear'] = df['stationlastyear'].astype('int')    
-    
-    # replace fill values in int variables:
-            
-    for j in range(1,13):
-
-        df[df.columns[j]].replace(-9999, np.nan, inplace=True)
-
-    df['stationlat'].replace(-9999, np.nan, inplace=True) 
-    df['stationlon'].replace(-9999, np.nan, inplace=True) 
-    df['stationelevation'].replace(-9999, np.nan, inplace=True) 
-    df['stationfirstyear'].replace(-9999, np.nan, inplace=True) 
-    df['stationlastyear'].replace(-9999, np.nan, inplace=True) 
+    df.replace('-9999',np.nan)
                     
     return df
 
