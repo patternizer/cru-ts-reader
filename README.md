@@ -2,7 +2,7 @@
 
 Python CRU TS reader code:
 
-* Python reader for CRU TS v4.04 .dtb files.
+* Python reader for CRU TS .dtb files and analogous format data files.
 
 ## Contents
 
